@@ -53,7 +53,7 @@ Next we want to add the distance from the query point to the results and also so
 Finally we are going to change the search area to be a bounded box area which has a radius of 1km. This is sometimes better for maps that are relatively square. For this we change the filtering query from '{!geofilt}' to '{!bbox}'
 
 ![Image of Postcode lookup for a bounded box filter]	
-(https://raw.githubusercontent.com/PatrickCallaghan/images/master/PostCodeDist1Sorted.png)
+(https://raw.githubusercontent.com/PatrickCallaghan/images/master/PostCodeBBox.png)
 
 To remove the tables and the schema, run the following.
 
