@@ -28,6 +28,16 @@ Open a cql shell and run
 
 When the data is loaded, the Solr code needs to be updated with config and schema which will allow us to search.
 
+Then go to the 'src/main/resources/solr'
+
+Use the 'Commands.txt' file which shows the commands run to add the config and schema to create the Solr core. The commands assume you are running this on your localhost, if you are not, you will need to change the host name. 
+
+Once these commands have been run, we can start to query the Solr Admin. 
+
+First we will using the 'q' field to query for post_code = SW209AQ
+
+![Image of Postcode lookup]
+(https://raw.githubusercontent.com/PatrickCallaghan/images/master/PostCodeLookup.png)
 
 To remove the tables and the schema, run the following.
 
