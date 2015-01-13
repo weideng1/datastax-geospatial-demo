@@ -59,4 +59,6 @@ To remove the tables and the schema, run the following.
 
     mvn clean compile exec:java -Dexec.mainClass="com.datastax.demo.SchemaTeardown"
     
+For more on Spatial Search in Solr please visit https://wiki.apache.org/solr/SpatialSearch
+    
     
