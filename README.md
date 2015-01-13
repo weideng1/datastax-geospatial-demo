@@ -36,8 +36,24 @@ Once these commands have been run, we can start to query the Solr Admin.
 
 First we will using the 'q' field to query for post_code = SW209AQ
 
-![Image of Postcode lookup]
+![Image of Postcode lookup]	
 (https://raw.githubusercontent.com/PatrickCallaghan/images/master/PostCodeLookup.png)
+
+
+Next we do a spatial query to filter out anything that is outside of 1km from lon/lat co-ordinates that we found from looking up SW209AQ. Not we use check the spatial checkbox and fill in the details - also we use the 'fq' field to declare we are geo filtering. The 'q' field is now set back to '*:*'  
+
+![Image of Postcode lookup within Distance]	
+(https://raw.githubusercontent.com/PatrickCallaghan/images/master/PostCodeDist1.png)
+
+Next we want to add the distance to the results and also sort them by the nearest postcodes. For this we add the 'geodist() asc' to the sort field and in the fields 'fl' we will return 'post_code, lon_lat and geodist()'
+
+![Image of Postcode lookup within Distance sorted]	
+(https://raw.githubusercontent.com/PatrickCallaghan/images/master/PostCodeDist1Sorted.png)
+
+Finally we are going to change the search area to be a bounded box area which has a radius of 1km. This is sometimes better for maps that are relatively square. For this we change the filtering query from '{!geofilt}' to '{!bbox}'
+
+![Image of Postcode lookup for a bounded box filter]	
+(https://raw.githubusercontent.com/PatrickCallaghan/images/master/PostCodeDist1Sorted.png)
 
 To remove the tables and the schema, run the following.
 
