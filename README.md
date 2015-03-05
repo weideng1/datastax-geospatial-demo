@@ -71,7 +71,7 @@ To remove the tables and the schema, run the following.
 ##Front End Setup
 Once the setup of the backend has been completed, you can use the front end as well.
 
-The front-end application is composed of a d3.js powered map of the UK (and Ireland). It leverages the solr HTTP API from front end ajax (this is not recommended at client sites due to the security risks associated with bypassing cors, at the very least there should be a solr security proxy in place https://github.com/phact/solr-security-proxy)
+The front-end application is composed of a d3.js powered map of the UK (and Ireland). It leverages the solr HTTP API from front end ajax (this is not recommended in prod environments or IRL due to the security risks associated with bypassing cors and exposing the Solr API, at the very least there should be a solr security proxy in place).
 
 Install node.js (needs to be 0.10.x or greater):
 
@@ -93,7 +93,7 @@ Kick off the proxy:
 
     screen node corsServer.js 
 
-Then Navigate to GeoMap and kick off the web server that will host your web application:
+Then Navigate to GeoMap and kick off the web server that will host your web application (depends on python 2.x):
 
     python -m SimpleHTTPServer
     
