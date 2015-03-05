@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+	.subunit.COL { fill: #ddc; }
+
+	.subunit {
+		stroke: #777;
+		stroke-dasharray: 2,2;
+		stroke-linejoin:round;
+	}
+
+	.subunit-label {
+		fill: darkblue;
+		fill-opacity: .95;
+		font-size: 13px;
+		font-weight: 300;
+		text-anchor: middle;
+		pointer-events:none;
+	}
+
+
+	.place-label{
+		font-size:6px;
+		pointer-events: none;
+	}
+
+	.subunit-boundary.IRL {
+		stroke: #aaa;
+	}
+
+
+
+
+</style>
+<head>
+								<link rel="stylesheet" href="css/jquery.mobile-1.3.0.css">
+								<link href="css/footable.core.css" rel="stylesheet" type="text/css" />
+								<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+								<script src="js/footable.js" type="text/javascript"></script>
+								<script src="js/footable.sort.js" type="text/javascript"></script>
+								<script src="js/footable.filter.js" type="text/javascript"></script>
+</head>
+<body style="background-color:lightcyan">
+<div style="float:left;margin-left:50%;position:absolute; pointer-events:none">
+Distance: 
+<input type="number" name="distance" step="1" value="10" id="distance" style="pointer-events:auto"></input>
+Number of Results:
+<input type="number" name="results" step="1" value="10" id="results" style="pointer-events:auto"></input>
+<h3 id="region">No region selected: </h3>
+<h3 id="results"></h3>
+</div>
+<div style="display:inline-block; width:50%" id="map"></div>
+
+<table style="display:inline-block; width:40%" class="footable ui-responsive table-stroke ui-table ui-table-reflow" id="soTable" >
+      <thead>
+        <tr>
+          <th data-class="expand" data-sort-initial="true">
+            Post Code 
+          </th>
+          <th data-hide="phone,tablet">
+            Location (lat, lon)
+          </th>
+          <th data-hide="phone,tablet" data-sort-ignore="true">Metric</th>
+        </tr>
+      </thead>
+		<tbody>
+      </tbody>	  
+    </table>
+
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<script src="http://d3js.org/topojson.v1.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+	<script>
+
+		var obj_col;
+		var width = 660,
+		height = 700;
+		var colorScale = d3.scale.category20b();
+		var colorByScale;
+
+		//	valor para colorear
+		var colorby = "latitude";
+
+		var projection = d3.geo.albers()
+		    .center([0, 55.4])
+				    .rotate([4.4, 0])
+						    .parallels([50, 60])
+								    .scale(3600)
+										    .translate([width / 2, height / 2]);
+
+		var drawRow = function(doc){
+
+			var row = $("<tr />")
+			$("#soTable").append(row); //this will append tr element to table... keep its reference for a while since we will add cels into it
+			row.append($("<td>" + doc.post_code + "</td>"));
+			row.append($("<td>" + doc.lon_lat + "</td>"));
+			row.append($("<td>" + Math.round(Math.random()*10) + "</td>"));
+
+
+		}
+
+		var pullGeoMatches = function(lat, lon){
+		  var distance = $("#distance").val();
+		  var results = $("#results").val();
+
+		  lat = encodeURIComponent(lat);
+		  lon = encodeURIComponent(lon);
+
+
+		  myAjaxCall = $.ajax({
+		    url: "http://104.154.50.8:9999/104.154.50.8:8983/solr/datastax_postcode_demo.postcodes/select?rows="+results+"&q=*%3A*&fq=%7B!geofilt+sfield%3Dlon_lat+pt%3D"+lat+"%2C"+lon+"+d%3D"+distance+"%7D&wt=json&indent=true&spatial=true",
+		    type: "GET", 
+	            contentType: "text/javascript",
+		    jsonpCallback: 'jsonCallback',
+		    dataType: 'json'
+		  }).done(function(data) { 
+	          	console.log(data.response);
+			console.log(data.response.numFound);
+			$("#region").text($("#region").text()+data.response.numFound+" matches")
+			var len = data.response.docs.length;
+
+			$("#soTable tbody").remove()
+			for (i = 0; i<len ; i++){
+				drawRow(data.response.docs[i]);
+			}
+		  });
+		}
+
+		var path = d3.geo.path()
+		.projection(projection)
+		.pointRadius(2);
+
+		var svg = d3.select("#map").append("svg")
+		.attr("width", width)
+		.attr("height", height);
+
+		d3.json("uk_deptos.json", function(error, col) {
+
+			var range = $.map(col.objects.deptos.geometries, function(d){ return parseInt(d.properties[colorby]); });
+
+			var colorByScale = d3.scale.linear().domain([Math.min.apply( Math, range ), Math.max.apply( Math, range )]).range(["white", "green"]);
+
+			obj_col=col;
+
+			svg.append("path")
+			.datum(topojson.feature(col, col.objects.subunits))
+			.attr("d", path);
+
+			svg.selectAll(".subunit")
+			.data(topojson.feature(col, col.objects.subunits).features)
+			.enter().append("path")
+			.attr("class", function(d) { 
+				return "subunit " + d.id;
+			})
+			.attr("d", path);
+
+
+		//	Add Ireland
+                        svg.append("path")
+                             .datum(topojson.mesh(col, col.objects.subunits, function(a, b) { return a === b && a.id === "IRL"; }))
+                             .attr("d", path)
+                             .attr("class", "subunit-boundary IRL");
+
+			//deptos
+
+			svg.append("path")
+			.datum(topojson.feature(col, col.objects.deptos))
+			.attr("d", path);
+
+			svg.selectAll(".subunit")
+			.data(topojson.feature(col, col.objects.deptos).features)
+			.enter().append("path")
+			.attr("class", function(d) {
+				console.log("");
+				console.log(d.properties.gn_name);	
+				return "subunit " + d.properties.name;
+			})
+			//			.attr("class", "depto")
+			.attr("d", path)
+			//			.style("opacity",".9")
+			.style("fill", function(d, i){
+				var color = d3.rgb(colorByScale(d.properties[colorby])).brighter();
+				if (color.toString() == "#000000"){
+					$(".IRL").css("opacity",".5");
+					return "white";
+				}else{
+					return color;
+				}
+			})
+			.on("mouseover", function(d,i){
+				d3.select(this).style("fill", function(d, i){
+					return d3.rgb(colorByScale(d.properties[colorby]));
+				});
+				$("#subunit-label-"+d.properties.name.replace(/ /g,"")).css("display","block");
+				})
+
+				.on("mouseout", function(d,i){
+					d3.select(this).style("fill", function(d, i){
+						return d3.rgb(colorByScale(d.properties[colorby])).brighter();
+					})
+				  $("#subunit-label-"+d.properties.name.replace(/ /g,"")).css("display","none");
+					})
+				.on("click", function(d,i){
+						console.log(d.properties.latitude);
+						console.log(d.properties.longitude);
+						$("#region").text(d.properties.name+":  ");
+						pullGeoMatches(d.properties.latitude, d.properties.longitude);
+					});
+
+				//Color Ireland
+			$(".IRL").css("opacity",".5");
+			$(".IRL").css("fill","white");
+
+
+					svg.selectAll(".subunit-label")
+					.data(topojson.feature(col, col.objects.deptos).features)
+					.enter().append("text")
+					.attr("class", function(d) { 
+						return "subunit-label " + d.properties.name; 
+					})
+					.attr("id", function(d){
+					  return "subunit-label-" + d.properties.name.replace(/ /g,'');
+					})
+					.attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
+					.attr("dy", ".35em")
+					.text(function(d) { return d.properties.name; })
+					.style("display","none");
+
+
+					//ciudades
+
+					svg.append("path")
+					.datum(topojson.feature(col, col.objects.places))
+					.attr("d", path)
+					.attr("class", "place");
+
+					svg.selectAll(".place-label")
+					.data(topojson.feature(col, col.objects.places).features)
+					.enter().append("text")
+					.attr("class", "place-label")
+					.attr("transform", function(d) { return "translate(" + projection(d.geometry.coordinates) + ")"; })
+					.attr("dy", ".1em")
+					.text(function(d) { 
+						return d.properties.NAME; 
+						});
+
+						svg.selectAll(".place-label")
+						.attr("x", function(d) { return d.geometry.coordinates[0] > -74 ? 6 : -6; })
+						.attr("dy", ".35em")
+						.style("text-anchor", function(d) { return d.geometry.coordinates[0] > -74 ? "start" : "end"; });
+
+
+
+
+
+
+
+
+
+						});
+
+					</script>
