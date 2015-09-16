@@ -76,7 +76,7 @@ Using Cassandra Table
 	
 	sc.cassandraTable("datastax_postcode_demo", "postcodes").select("post_code").where("solr_query='{\"q\": \"*:*\", \"fq\": \"lon_lat:[51.2,-.2064458 TO 51.3,-.2015418]\"}'").collect.foreach(println)
 
-//Filtering with radius and box bounds
+Filtering with radius and box bounds
 
 	import com.datastax.spark.connector.cql.CassandraConnector
 	import scala.collection.JavaConversions._
