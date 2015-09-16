@@ -68,6 +68,38 @@ To remove the tables and the schema, run the following.
 
     mvn clean compile exec:java -Dexec.mainClass="com.datastax.demo.SchemaTeardown"
     
+To use with Spark you can use the following
+
+Using Cassandra Table
+
+	sc.cassandraTable("datastax_postcode_demo", "postcodes").select("post_code").where("solr_query='{\"q\": \"*:*\", \"fq\": \"{!geofilt sfield=lon_lat pt=51.404970234124800,-.206445841245690 d=1}\"}'").collect.foreach(println)
+	
+	sc.cassandraTable("datastax_postcode_demo", "postcodes").select("post_code").where("solr_query='{\"q\": \"*:*\", \"fq\": \"lon_lat:[51.2,-.2064458 TO 51.3,-.2015418]\"}'").collect.foreach(println)
+
+//Filtering with radius and box bounds
+
+	import com.datastax.spark.connector.cql.CassandraConnector
+	import scala.collection.JavaConversions._
+
+	CassandraConnector(sc.getConf).withSessionDo { session => session.execute("select * from datastax_postcode_demo.postcodes where solr_query='{\"q\": \"*:*\", \"fq\": \"{!geofilt sfield=lon_lat pt=51.404970234124800,-.206445841245690 d=1}\"}'")
+	}.all.foreach(println)
+
+	val rdd = CassandraConnector(sc.getConf).withSessionDo { session =>
+	  session.execute("select post_code, lon_lat from datastax_postcode_demo.postcodes where solr_query='{\"q\": \"*:*\", \"fq\": \"{!bbox sfield=lon_lat pt=51.404970234124800,-.206445841245690 d=1}\"}'")
+	}.all.foreach(println)
+
+Spark SQL
+
+	import org.apache.spark.sql.cassandra.CassandraSQLContext
+	
+	val rdd = csc.sql("select post_code, lon_lat from datastax_postcode_demo.postcodes where solr_query='{\"q\": \"*:*\", \"fq\": \"{!geofilt sfield=lon_lat pt=51.404970234124800,-.206445841245690 d=1}\"}'")
+	rdd.collect.foreach(println)
+	
+	val rdd = csc.sql("select post_code, lon_lat from datastax_postcode_demo.postcodes where solr_query='{\"q\": \"*:*\", \"fq\": \"lon_lat:[51.2,-.2064458 TO 51.3,-.2015418]\"}'")
+	rdd.collect.foreach(println)    
+    
+    
+
 ##Front End Setup
 Once the setup of the backend has been completed, you can use the front end as well.
 
