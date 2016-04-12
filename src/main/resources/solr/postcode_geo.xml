@@ -9,7 +9,7 @@
   <fields>
     <field name="post_code"  type="string" indexed="true"  stored="true"/>   
     <field name="lon_lat" type="location" indexed="true"  stored="true"  multiValued="false"/>
-    <dynamicField name="*_coordinate"  type="tdouble" indexed="true"  stored="false" docValues="true"/>
+    <dynamicField name="*_coordinate"  type="tdouble" indexed="true"  stored="false"/>
        
   </fields>
   <defaultSearchField>post_code</defaultSearchField>
