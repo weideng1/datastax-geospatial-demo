@@ -43,7 +43,7 @@ To do this in CQL run the following
  
 	select * from postcodes where solr_query = '{"q": "post_code:SW209AQ"}';
 
-Next we do a spatial query to filter out anything that is outside of 1km from lon/lat co-ordinates that we found from looking up SW209AQ. Now we use check the spatial checkbox and fill in the details - also we use the 'fq' field to declare we are geo filtering. The 'q' field is now set back to '*:*'
+Next we do a spatial query to filter out anything that is outside of 1km from lon/lat co-ordinates that we found from looking up SW209AQ. Now we use check the spatial checkbox and fill in the details - also we use the 'fq' field to declare we are geo filtering. The 'q' field is now set back to `*:*`
 
 ![Image of Postcode lookup within Distance]	
 (https://raw.githubusercontent.com/PatrickCallaghan/images/master/PostCodeDist1.png)
