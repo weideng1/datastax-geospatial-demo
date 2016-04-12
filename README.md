@@ -1,7 +1,7 @@
 Geo Spatial Demo
 ====================
 
-NOTE - this example requires DSE > 4.5
+NOTE - this example requires DSE >= 4.8
 
 ## Scenario
 
@@ -30,7 +30,9 @@ When the data is loaded, the Solr code needs to be updated with config and schem
 
 Then go to the 'src/main/resources/solr'
 
-Use the 'Commands.txt' file which shows the commands run to add the config and schema to create the Solr core. The commands assume you are running this on your localhost, if you are not, you will need to change the host name. 
+Use the following command to add the config and schema to create the Solr core. The commands assume you are running this on your localhost.
+
+    dsetool create_core datastax_postcode_demo.postcodes schema=postcode_geo.xml solrconfig=solrconfig.xml distributed=true reindex=true
 
 Once these commands have been run, we can start to query the Solr Admin. 
 
@@ -51,6 +53,10 @@ Next we do a spatial query to filter out anything that is outside of 1km from lo
 To do this in CQL run the following
 
 	select * from postcodes where solr_query = '{"q": "*:*", "fq": "{!geofilt sfield=lon_lat pt=51.404970234124800,-.206445841245690 d=1}"}';
+
+If you run into some error like "java.io.IOException: Field cache is disabled", use the following CQL query instead (add useFieldCache=true):
+
+        select * from postcodes where solr_query = '{"q": "*:*", "fq": "{!geofilt sfield=lon_lat pt=51.404970234124800,-.206445841245690 d=1}", "useFieldCache": true}';
 	
 Next we want to add the distance from the query point to the results and also sort them by the nearest postcodes. For this we add the 'geodist() asc' to the sort field and in the field 'fl' we will return 'post_code, lon_lat and geodist()'
 
