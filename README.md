@@ -110,15 +110,11 @@ The front-end application is composed of a d3.js powered map of the UK (and Irel
 Install node.js (needs to be 0.10.x or greater):
 
     apt-get update
-    apt-get install software-properties-common curl sudo
-    apt-add-repository ppa:chris-lea/node.js
-    curl -sL https://deb.nodesource.com/setup_4.x | sudo bash -
-    sudo apt-get install -y nodejs
-
+    apt-get install nodejs npm
+    
     nodejs -v
 
-    sudo apt-get install npm
-    sudo npm install -g cors-anywhere
+    npm install -g cors-anywhere
 
 Dependencies:
 
@@ -127,7 +123,7 @@ Dependencies:
 
 Kick off the proxy:
 
-    screen nodejs corsServer.js 
+    env PORT=9999 nohup nodejs node_modules/cors-anywhere/server.js &
 
 Then Navigate to GeoMap and kick off the web server that will host your web application (depends on python 2.x):
 
