@@ -69,10 +69,6 @@ Finally we are going to change the search area to be a bounded box area which ha
 ![Image of Postcode lookup for a bounded box filter]	
 (https://raw.githubusercontent.com/PatrickCallaghan/images/master/PostCodeBBox.png)
 
-
-To remove the tables and the schema, run the following.
-
-    mvn clean compile exec:java -Dexec.mainClass="com.datastax.demo.SchemaTeardown"
     
 To use with Spark you can use the following
 
@@ -119,7 +115,7 @@ Install node.js (needs to be 0.10.x or greater):
     curl -sL https://deb.nodesource.com/setup_4.x | sudo bash -
     sudo apt-get install -y nodejs
 
-    node -v
+    nodejs -v
 
     sudo apt-get install npm
     sudo npm install -g cors-anywhere
@@ -138,6 +134,10 @@ Then Navigate to GeoMap and kick off the web server that will host your web appl
     python -m SimpleHTTPServer
     
 You can now test the app on port 8000
+
+To remove the tables and the schema, run the following.
+
+    mvn clean compile exec:java -Dexec.mainClass="com.datastax.demo.SchemaTeardown"
 
 For more on Spatial Search in Solr please visit https://wiki.apache.org/solr/SpatialSearch
     
